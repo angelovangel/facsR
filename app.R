@@ -71,17 +71,22 @@ ui <- dashboardPage(header, sidebar, body)
   
 
 server <- function(input, output, session) {
-options(shiny.maxRequestSize=30*1024^2) 
+#options(shiny.maxRequestSize=30*1024^2) 
  
 
 ### read files into df and log transform
   dfX <- reactive({
-  inFiles <- input$files$datapath # critical, see example script readmultiplefiles-shiny.R or https://itsalocke.com/upload-multiple-files-in-shiny-and-consolidate-into-a-dataset/
-  if(is.null(inFiles))
-  {return(NULL)}  
-  inNames <- input$files$name
-  if(is.null(inNames))
-  {return(NULL)}
+    
+   inFiles <- input$files$datapath # critical, see example script readmultiplefiles-shiny.R or https://itsalocke.com/upload-multiple-files-in-shiny-and-consolidate-into-a-dataset/
+  # if(is.null(inFiles))
+  # {return(NULL)}  
+   inNames <- input$files$name
+  # if(is.null(inNames))
+  # {return(NULL)}
+  
+  validate(
+    need(expr = !is.null(input$files$datapath), "Please select fcs files first")
+  )
   
   map2_df(inFiles, inNames, read.fcs) %>% dplyr::mutate_at(vars(FSC.A:FL4.H), logtrans.fcs)
   })
