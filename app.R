@@ -71,7 +71,7 @@ ui <- dashboardPage(header, sidebar, body)
   
 
 server <- function(input, output, session) {
-#options(shiny.maxRequestSize=30*1024^2) 
+options(shiny.maxRequestSize=100*1024^2) 
  
 
 ### read files into df and log transform
@@ -88,7 +88,7 @@ server <- function(input, output, session) {
     need(expr = !is.null(input$files$datapath), "Please select fcs files first")
   )
   
-  map2_df(inFiles, inNames, read.fcs) %>% dplyr::mutate_at(vars(FSC.A:FL4.H), logtrans.fcs)
+  map2_df(inFiles, inNames, read.fcs) %>% dplyr::mutate_at(vars(1:(ncol(.) - 3)), logtrans.fcs) # here presumed that the last 3 columns of the fcs file are channels (Time + 2 made by process-facs.R)
   })
 
 

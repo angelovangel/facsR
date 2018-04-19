@@ -18,7 +18,7 @@ read.fcs <- function(x, y) {
     mutate(filename = y, sample = str_extract(filename, "\\w+(?=.fcs)"),
            Time = Time/600) # in minutes
   
-  names(df) <- names(df) %>% str_replace("-", ".")
+  names(df) <- names(df) %>% gsub(pattern = "-| ", replacement = ".") # this gsub is not very stable for different machines...works for fortessa and accuri though
   return(df)
 }
 
