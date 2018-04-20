@@ -34,9 +34,9 @@ sidebar <- dashboardSidebar(
                     
                     selectizeInput("selectX", "select X", choices = NULL, multiple = FALSE), 
                     
-                    selectizeInput("selectY", "select Y", choices = NULL, multiple = FALSE),
+                    selectizeInput("selectY", "select Y", choices = NULL, multiple = FALSE)
                      
-                    sliderInput("alpha", "alpha", 0.1, 1, 0.5))
+                    )
 
 body <- dashboardBody(
   tabsetPanel(
@@ -63,7 +63,8 @@ body <- dashboardBody(
     tabPanel("Scatterplots", 
              box(width = 12,
              downloadLink("plot3download"),
-             plotOutput("plot3"))
+             plotOutput("plot3")),
+             sliderInput("alpha", "alpha", 0.1, 1, 0.5)
     )
   )
 )
@@ -106,13 +107,14 @@ observe({
 
 #plot0
    output$plot0 <- renderPlot({
-     dfsampled() %>% gather(param, value, FSC.A:FL4.A) %>%
+     dfsampled() %>% gather(param, value, 1:5) %>%
        ggplot(aes_string("Time", "value")) +
        geom_point(aes(color = param), alpha = input$alpha, stroke = 0) +
        theme_bw() +
        facet_grid(param ~ sample, scales = "free_x") +
        scale_color_brewer(type = "div", palette = "Spectral") +
-       guides(color = FALSE)
+       guides(color = FALSE) +
+       ggtitle(label = "Signal vs time (min)" , subtitle =  "showing the first 5 channels only")
        
    }, res = 120)
   
