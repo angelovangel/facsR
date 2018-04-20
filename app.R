@@ -45,7 +45,7 @@ body <- dashboardBody(
              textOutput("getip")
              ),
     tabPanel("2D density plots", 
-             box(width = 12,
+             #box(width = 12,
             
              selectizeInput("bins", "Number of bins", choices = c(64, 128, 256), selected = 64),
             
@@ -57,16 +57,17 @@ body <- dashboardBody(
                     
              
              
-             plotOutput("plot2")
-             )
+             plotOutput("plot2", height = 600)
+             
              ), 
     tabPanel("Scatterplots", 
-             box(width = 12,
+             #box(width = 12,
              downloadLink("plot3download"),
-             plotOutput("plot3")),
-             sliderInput("alpha", "alpha", 0.1, 1, 0.5)
+             plotOutput("plot3"),
+             sliderInput("alpha", "alpha", 0.1, 1, 0.5))
+             
     )
-  )
+  
 )
 ui <- dashboardPage(header, sidebar, body) 
   
@@ -148,6 +149,9 @@ plot2 <- function() {
       ggplot() +
       geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0) +
       theme_bw() +
+      xlab(label = paste("log10(", input$selectX, ")", sep = "")) +
+      ylab(label = paste("log10(", input$selectY, ")", sep = "")) +
+      ggtitle(label = "Scatter plot", subtitle = paste("Showing ", input$sampleData, "of the events")) +
       facet_grid(. ~ sample) +
       theme(aspect.ratio = 1)
   }
