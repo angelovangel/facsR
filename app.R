@@ -63,8 +63,12 @@ body <- dashboardBody(
     tabPanel("Scatterplots", 
              #box(width = 12,
              downloadLink("plot3download"),
-             plotOutput("plot3"),
-             sliderInput("alpha", "alpha", 0.1, 1, 0.5))
+             plotOutput("plot3",
+                        brush = brushOpts(id = "gate")),
+             
+             sliderInput("alpha", "alpha", 0.1, 1, 0.5),
+             h4("Brushed points"),
+             verbatimTextOutput("gate_info"))
              
     )
   
@@ -160,6 +164,10 @@ plot2 <- function() {
     plot3()
     
   }, res = 120)
+  
+  output$gate_info <- renderPrint({
+    brushedPoints(dfsampled(), input$gate)
+  })
   
 # downloads
   output$plot2download <- downloadHandler(
