@@ -190,7 +190,16 @@ plot2 <- function() {
   }, res = 120)
   
   output$gate_info <- renderPrint({
-    dfgate()
+     
+      total <- table(dfsampled()$sample)
+      selected <- table(dfgate()$sample)
+      
+     tibble(sample = names(total), 
+            t = as.numeric(total), 
+            s = as.numeric(selected)) %>% 
+       mutate(percent = (s/t) *100)
+      
+               
   })
   
 
