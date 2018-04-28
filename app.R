@@ -63,8 +63,8 @@ body <- dashboardBody(
     tabPanel("Scatterplots", 
              #box(width = 12,
              downloadLink("plot3download"),
-             plotOutput("plot3",
-                        brush = brushOpts(id = "gate")),
+             plotOutput("plot3", height = 600,
+                        brush = brushOpts(id = "gate", fill = NA, stroke = "black")),
              
              sliderInput("alpha", "alpha", 0.1, 1, 0.5),
              h4("Brushed points"),
@@ -108,8 +108,11 @@ dfsampled <- reactive({
     selectedPoints <- dfsampled() %>% brushedPoints(input$gate)
     xmin <- min(selectedPoints[[input$selectX]])
     xmax <- max(selectedPoints[[input$selectX]])
-  
-    dfsampled()[between(dfsampled()[[input$selectX]], xmin, xmax), ]
+    ymin <- min(selectedPoints[[input$selectY]])
+    ymax <- max(selectedPoints[[input$selectY]])
+    
+    gatetmp <- dfsampled()[between(dfsampled()[[input$selectX]], xmin, xmax), ]
+    gatetmp[between(gatetmp[[input$selectY]], ymin, ymax), ]
                                      
                                      
 })
@@ -144,7 +147,7 @@ plot2 <- function() {
     ggplot(aes_string(x = input$selectX, y = input$selectY)) +
     geom_hex(bins = as.numeric(input$bins)) +
     theme_bw() +
-    facet_grid(. ~ sample) +
+    facet_wrap( ~ sample) +
     scale_fill_distiller(palette = "Spectral", trans = input$transf) +
     theme(aspect.ratio = 1) +
     guides(fill = FALSE) +
@@ -163,16 +166,21 @@ plot2 <- function() {
   plot3 <- function() {
     dfsampled() %>%
       ggplot() +
-      geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0) +
+      geom_point(aes_string(input$selectX, input$selectY), 
+                 alpha = input$alpha, 
+                 stroke = 0) +
       
-      geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0, color = "red", 
+      geom_point(aes_string(input$selectX, input$selectY), 
+                 alpha = input$alpha*0.5, 
+                 color = "red", 
+                 stroke = 0,
                  data = dfgate()) + #### gated points
       
       theme_bw() +
       xlab(label = paste("log10(", input$selectX, ")", sep = "")) +
       ylab(label = paste("log10(", input$selectY, ")", sep = "")) +
       ggtitle(label = "Scatter plot", subtitle = paste("Showing ", input$sampleData, "of the events")) +
-      facet_grid(. ~ sample) +
+      facet_wrap( ~ sample) +
       theme(aspect.ratio = 1)
   }
   output$plot3 <- renderPlot({
