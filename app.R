@@ -104,13 +104,7 @@ dfsampled <- reactive({
   
   })
 # make a df, using coordinates of selected points, to serve as a gate
-dfgate <- reactive({
-  selectedPoints <- brushedPoints(dfsampled(), input$gate)
-  # dfsampled() %>% 
-  #   dplyr::filter(input$selectX >= min(selectedPoints[input$selectX]),
-  #                 input$selectX <= max(selectedPoints[input$selectX]))
-  
-})
+
 
 observe({
   x <- names(dfX())
@@ -162,7 +156,8 @@ plot2 <- function() {
       ggplot() +
       geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0) +
       
-      geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0, color = "red", data = dfgate()) + #### gated points
+      geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0, color = "red", 
+                 data = dfsampled() %>% brushedPoints(input$gate)) + #### gated points
       
       theme_bw() +
       xlab(label = paste("log10(", input$selectX, ")", sep = "")) +
@@ -178,7 +173,7 @@ plot2 <- function() {
   }, res = 120)
   
   output$gate_info <- renderPrint({
-    brushedPoints(dfsampled(), input$gate)
+    dfsampled() %>% brushedPoints(input$gate, allRows = TRUE)
   })
   
 
