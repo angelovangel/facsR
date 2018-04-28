@@ -103,6 +103,15 @@ dfsampled <- reactive({
   dfX() %>% sample_frac(size = as.numeric(input$sampleData), replace = F) 
   
   })
+# make a df, using coordinates of selected points, to serve as a gate
+dfgate <- reactive({
+  selectedPoints <- brushedPoints(dfsampled(), input$gate)
+  # dfsampled() %>% 
+  #   dplyr::filter(input$selectX >= min(selectedPoints[input$selectX]),
+  #                 input$selectX <= max(selectedPoints[input$selectX]))
+  
+})
+
 observe({
   x <- names(dfX())
   updateSelectizeInput(session, "selectX", choices = x, selected = x[1])
@@ -152,6 +161,9 @@ plot2 <- function() {
     dfsampled() %>%
       ggplot() +
       geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0) +
+      
+      geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0, color = "red", data = dfgate()) + #### gated points
+      
       theme_bw() +
       xlab(label = paste("log10(", input$selectX, ")", sep = "")) +
       ylab(label = paste("log10(", input$selectY, ")", sep = "")) +
@@ -169,7 +181,10 @@ plot2 <- function() {
     brushedPoints(dfsampled(), input$gate)
   })
   
-# downloads
+
+  
+  
+  # downloads
   output$plot2download <- downloadHandler(
     filename = "plot2.pdf",
     content = function(file) {
