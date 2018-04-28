@@ -100,10 +100,19 @@ options(shiny.maxRequestSize=100*1024^2)
 
 # sample fraction based on input, note that first sampling is done, then filter on sample
 dfsampled <- reactive({
-  dfX() %>% sample_frac(size = as.numeric(input$sampleData), replace = F) 
+  dfX() %>% sample_frac(size = as.numeric(input$sampleData), replace = F) %>% na.omit()
   
   })
-# make a df, using coordinates of selected points, to serve as a gate
+# make a df using coordinates of selected points, to serve as a gate
+  dfgate <- reactive({
+    selectedPoints <- dfsampled() %>% brushedPoints(input$gate)
+    xmin <- min(selectedPoints[[input$selectX]])
+    xmax <- max(selectedPoints[[input$selectX]])
+  
+    dfsampled()[between(dfsampled()[[input$selectX]], xmin, xmax), ]
+                                     
+                                     
+})
 
 
 observe({
@@ -157,7 +166,7 @@ plot2 <- function() {
       geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0) +
       
       geom_point(aes_string(input$selectX, input$selectY), alpha = input$alpha, stroke = 0, color = "red", 
-                 data = dfsampled() %>% brushedPoints(input$gate)) + #### gated points
+                 data = dfgate()) + #### gated points
       
       theme_bw() +
       xlab(label = paste("log10(", input$selectX, ")", sep = "")) +
@@ -173,7 +182,7 @@ plot2 <- function() {
   }, res = 120)
   
   output$gate_info <- renderPrint({
-    dfsampled() %>% brushedPoints(input$gate, allRows = TRUE)
+    dfgate()
   })
   
 
