@@ -13,3 +13,11 @@ The libraries needed by the app are `shiny`, `shinydashboard`, `tidyverse`, `rbo
 
 Happy facsing!
 
+![](img/img1.png)   
+
+***
+Example of "gating" - points selected in one plot are highlighted in all other plots. Summary statistics are provided below the plots.
+
+
+![](img/img2.png)
+
