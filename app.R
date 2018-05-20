@@ -106,6 +106,8 @@ dfsampled <- reactive({
 # make a df using coordinates of selected points, to serve as a gate
   dfgate <- reactive({
     selectedPoints <- dfsampled() %>% brushedPoints(input$gate)
+     if(nrow(selectedPoints) == 0)
+       return(dfsampled()[0, ])   #if nothing brushed, return empty dfsampled() dataframe
     xmin <- min(selectedPoints[[input$selectX]])
     xmax <- max(selectedPoints[[input$selectX]])
     ymin <- min(selectedPoints[[input$selectY]])
@@ -197,7 +199,7 @@ plot2 <- function() {
      tibble(sample = names(total), 
             t = as.numeric(total), 
             s = as.numeric(selected)) %>% 
-       mutate(percent = (s/t) *100)
+       dplyr::mutate(percent = (s/t) *100)
       
                
   })
