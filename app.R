@@ -5,6 +5,7 @@ library(tidyverse)
 #library(ggpubr)
 library(rbokeh)
 library(RColorBrewer)
+library(formattable)
 
 #df <- readRDS("data/df.rds")
 source("R/process-facs.R")
@@ -34,12 +35,14 @@ sidebar <- dashboardSidebar(
                     
                     selectizeInput("selectX", "select X", choices = NULL, multiple = FALSE), 
                     
-                    selectizeInput("selectY", "select Y", choices = NULL, multiple = FALSE)
-                     
+                    selectizeInput("selectY", "select Y", choices = NULL, multiple = FALSE),
+                # the slider appears only when you go to the scatterplots tab
+                conditionalPanel("input.tabs == 'Scatterplots'",
+                    sliderInput("alpha", "alpha", 0.1, 1, 0.5)) # interesting, note input.tabs
                     )
 
 body <- dashboardBody(
-  tabsetPanel(
+  tabsetPanel(id = "tabs",
     tabPanel("Check flow", 
              plotOutput("plot0", height = 600),
              textOutput("getip")
@@ -61,15 +64,14 @@ body <- dashboardBody(
              
              ), 
     tabPanel("Scatterplots", 
-             #box(width = 12,
-             downloadLink("plot3download"),
-             plotOutput("plot3", height = 600,
+            #box(width = 12,
+            downloadLink("plot3download"),
+            plotOutput("plot3", height = 600,
                         brush = brushOpts(id = "gate", fill = NA, stroke = "black")),
-             
-             sliderInput("alpha", "alpha", 0.1, 1, 0.5),
-             h4("Brushed points"),
-             verbatimTextOutput("gate_info"))
-             
+            h4("Selected points"),
+            tableOutput("gate_info")
+            )
+            #)
     )
   
 )
@@ -191,16 +193,21 @@ plot2 <- function() {
     
   }, res = 120)
   
-  output$gate_info <- renderPrint({
+  output$gate_info <- renderTable({
      
       total <- table(dfsampled()$sample)
       selected <- table(dfgate()$sample)
+      # how to deal with situations where not all samples have points selected?
+      # e.g. length(selected) != length(total)
       
-     tibble(sample = names(total), 
-            t = as.numeric(total), 
-            s = as.numeric(selected)) %>% 
-       dplyr::mutate(percent = (s/t) *100)
+      totaldf <- tibble(sample = names(total), total = as.integer(total)) 
+      if(length(selected) == 0)
+        return()
+      selecteddf <- tibble(sample = names(selected), selected = as.integer(selected)) 
       
+      left_join(totaldf, selecteddf, by = "sample") %>%
+      dplyr::mutate(percent = percent(selected/total))
+     
                
   })
   
