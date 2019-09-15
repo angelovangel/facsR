@@ -16,7 +16,7 @@ source("R/process-facs.R")
 # the sample names to populate the input$selectSamples
 #sampleNames <- as.factor(levels(df$sample)) %>% as.character()
 
-header <- dashboardHeader()
+header <- dashboardHeader(title = "facsR")
 
 
 sidebar <- dashboardSidebar(
